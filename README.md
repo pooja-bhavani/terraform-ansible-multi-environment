@@ -1,61 +1,134 @@
-# Terraform In One Shot
-This repository is your one stop solution for Terraform for DevOps Engineers 
+# Terraform for DevOps — Hands-On Repo
 
-# Terraform Commands - Complete Guide
+This repository is your one-stop solution for learning Terraform as a DevOps Engineer. It covers basics through advanced features with real AWS infrastructure.
 
-## **1. Setup & Initialization**
-### **Install Terraform**
+## Prerequisites
+
+- [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.5.0 (recommended: 1.14.x)
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with valid credentials
+- An AWS account (Free Tier works for most examples)
+
+## Versions Used
+
+| Tool | Version |
+|------|---------|
+| Terraform | >= 1.5.0 |
+| AWS Provider | ~> 6.0 |
+| EKS Module | ~> 21.0 |
+| VPC Module | ~> 5.0 |
+
+## Repository Structure
+
+```
+terraform-for-devops/
+├── terraform.tf          # Provider config & version constraints
+├── variables.tf          # Input variables with validation
+├── ec2.tf                # EC2 instance, security group, key pair
+├── s3.tf                 # S3 bucket with versioning & encryption
+├── dynamodb.tf           # DynamoDB table
+├── outputs.tf            # Output values
+├── script.sh             # EC2 user_data bootstrap script
+├── terra-key.pub         # SSH public key
+│
+├── eks/                  # EKS Cluster (v21.x module)
+│   ├── provider.tf       # Provider + locals
+│   ├── vpc.tf            # VPC module for EKS networking
+│   └── eks.tf            # EKS cluster with managed node groups
+│
+├── aws_module_project/   # Reusable Modules example
+│   ├── terraform.tf      # Provider version constraints
+│   ├── providers.tf      # AWS provider region
+│   ├── main.tf           # Module composition (dev, stg, prd)
+│   └── my_app_infra_module/  # The reusable module
+│       ├── variables.tf  # Module inputs with validation
+│       ├── my_server.tf  # EC2 instances (count)
+│       ├── my_bucket.tf  # S3 bucket
+│       ├── my_table.tf   # DynamoDB table
+│       └── my_outputs.tf # Module outputs
+│
+└── examples/             # Modern Terraform feature examples
+    ├── for_each.tf       # for_each & dynamic blocks
+    ├── validation.tf     # Variable validation blocks
+    ├── lifecycle.tf      # lifecycle meta-argument
+    ├── moved.tf          # moved blocks (refactoring)
+    ├── import.tf         # import blocks (Terraform 1.5+)
+    ├── check.tf          # check blocks (continuous assertions)
+    ├── removed.tf        # removed blocks (safe removal)
+    └── terraform_test/   # Native terraform test (1.6+)
+```
+
+## What You'll Learn
+
+| Concept | Where to Find It |
+|---------|-----------------|
+| Provider & version constraints | `terraform.tf` |
+| Variables with validation | `variables.tf`, `examples/validation.tf` |
+| EC2, Security Groups, Key Pairs | `ec2.tf` |
+| user_data bootstrapping | `ec2.tf` + `script.sh` |
+| S3 with versioning & encryption | `s3.tf` |
+| DynamoDB tables | `dynamodb.tf` |
+| Outputs | `outputs.tf` |
+| Reusable modules | `aws_module_project/` |
+| Multi-environment with modules | `aws_module_project/main.tf` |
+| EKS cluster (v21.x) | `eks/` |
+| VPC for Kubernetes | `eks/vpc.tf` |
+| for_each & dynamic blocks | `examples/for_each.tf` |
+| Lifecycle rules | `examples/lifecycle.tf` |
+| Import existing resources | `examples/import.tf` |
+| Refactoring with moved | `examples/moved.tf` |
+| Continuous assertions | `examples/check.tf` |
+| Safe resource removal | `examples/removed.tf` |
+| terraform test framework | `examples/terraform_test/` |
+
+---
+
+## Terraform Commands — Complete Guide
+
+### 1. Setup & Initialization
+
+**Install Terraform (Linux/Ubuntu)**
 ```sh
-# Linux & macOS
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install terraform
+wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform
 
-# Verify Installation
+# Verify installation
 terraform -v
 ```
 
-### **Initialize Terraform**
+**Install Terraform (macOS)**
+```sh
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+```
+
+**Initialize Terraform**
 ```sh
 terraform init
 ```
 - Downloads provider plugins
 - Sets up the working directory
 
-## **2. Terraform Core Commands**
-### **Format & Validate Code**
+### 2. Core Commands
 ```sh
-terraform fmt       # Formats Terraform code
-terraform validate  # Validates Terraform syntax
+terraform fmt           # Format code to standard style
+terraform validate      # Validate syntax and configuration
+terraform plan          # Preview changes without applying
+terraform apply         # Create/update infrastructure
+terraform apply -auto-approve  # Apply without confirmation
+terraform destroy       # Destroy all managed resources
+terraform destroy -auto-approve  # Destroy without confirmation
 ```
 
-### **Plan & Apply Infrastructure**
+### 3. Managing State
 ```sh
-terraform plan      # Shows execution plan without applying
-terraform apply     # Creates/updates infrastructure
-terraform apply -auto-approve  # Applies without manual confirmation
+terraform state list              # List all managed resources
+terraform show                    # Show detailed resource info
+terraform state mv <src> <dest>   # Move resource in state
+terraform state rm <resource>     # Remove from state (not from cloud)
 ```
 
-### **Destroy Infrastructure**
-```sh
-terraform destroy  # Destroys all managed resources
-terraform destroy -auto-approve  # Without confirmation
-```
-
-## **3. Managing Terraform State**
-### **Check Current State**
-```sh
-terraform state list  # Lists all managed resources
-terraform show        # Shows detailed resource info
-```
-
-### **Manually Modify State**
-```sh
-terraform state mv <source> <destination>  # Move resource in state file
-terraform state rm <resource>  # Removes resource from state (not from infra)
-```
-
-### **Remote Backend (S3 & DynamoDB)**
+**Remote Backend (S3 + DynamoDB for locking)**
 ```hcl
 terraform {
   backend "s3" {
@@ -67,88 +140,30 @@ terraform {
   }
 }
 ```
+
+### 4. Variables & Outputs
 ```sh
-terraform init  # Reinitialize with remote backend
+terraform apply -var="instance_type=t3.small"  # Pass variable via CLI
+terraform output                                # Show all outputs
+terraform output ec2_public_ip                  # Show specific output
 ```
 
-## **4. Variables & Outputs**
-### **Define & Use Variables**
-```hcl
-variable "instance_type" {
-  default = "t2.micro"
-}
-resource "aws_instance" "web" {
-  instance_type = var.instance_type
-}
-```
-
-### **Pass Variables in CLI**
+### 5. Workspaces
 ```sh
-terraform apply -var="instance_type=t3.small"
+terraform workspace new dev       # Create workspace
+terraform workspace select prod   # Switch workspace
+terraform workspace list          # List all workspaces
 ```
 
-### **Output Values**
-```hcl
-output "instance_ip" {
-  value = aws_instance.web.public_ip
-}
-```
+### 6. Testing (Terraform 1.6+)
 ```sh
-terraform output instance_ip
+terraform test                    # Run all .tftest.hcl files
 ```
 
-## **5. Loops & Conditionals**
-### **for_each Example**
-```hcl
-resource "aws_s3_bucket" "example" {
-  for_each = toset(["bucket1", "bucket2", "bucket3"])
-  bucket   = each.key
-}
-```
-
-### **Conditional Expressions**
-```hcl
-variable "env" {}
-resource "aws_instance" "example" {
-  instance_type = var.env == "prod" ? "t3.large" : "t2.micro"
-}
-```
-
-## **6. Terraform Modules**
-### **Create & Use a Module**
+### 7. Debugging
 ```sh
-mkdir -p modules/vpc
-```
-```hcl
-# modules/vpc/main.tf
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-}
-```
-```hcl
-# Root module
-module "vpc" {
-  source = "./modules/vpc"
-}
-```
-```sh
-terraform init
-terraform apply
-```
-
-## **7. Workspaces (Environment Management)**
-### **Create & Switch Workspaces**
-```sh
-terraform workspace new dev
-terraform workspace new prod
-terraform workspace select prod
-terraform workspace list
-```
-
-## **8. Terraform Debugging & Logs**
-```sh
-export TF_LOG=DEBUG  # Enable debug logs
-terraform apply 2>&1 | tee debug.log  # Save logs
+export TF_LOG=DEBUG               # Enable debug logs
+terraform apply 2>&1 | tee debug.log
 ```
 
 ---
@@ -163,8 +178,3 @@ terraform apply 2>&1 | tee debug.log  # Save logs
 
 ### Terraform to EKS
 [Get it here](https://github.com/DevMadhup/Springboot-BankApp/tree/DevOps/Terraform/EKS-Deployment)
-
-## **Final Thoughts**
-This README covers all the Terraform commands needed for your **"Terraform in One Shot"** video. Let me know if you need modifications or extra details! 🚀
-
-
