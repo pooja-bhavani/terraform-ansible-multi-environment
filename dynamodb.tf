@@ -1,5 +1,7 @@
 resource "aws_dynamodb_table" "my_app_table" {
-  name         = "${var.my_environment}-test-my-app-table-d"
+  count = local.current.ddb
+
+  name         = "${terraform.workspace}-table-${count.index}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "id"
 
@@ -9,7 +11,7 @@ resource "aws_dynamodb_table" "my_app_table" {
   }
 
   tags = {
-    Name        = "${var.my_environment}-test-my-app-table-d"
-    Environment = var.my_environment
+    Name        = "${terraform.workspace}-table-${count.index}"
+    Environment = terraform.workspace
   }
 }
