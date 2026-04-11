@@ -1,7 +1,7 @@
 # Key Value pair
 
 resource "aws_key_pair" "my_key_pair" {
-  key_name   = "terra-automate-key"
+  key_name   = "${terraform.workspace}-terra-key"
   public_key = file("terra-automate-key.pub")
 }
 
@@ -12,7 +12,7 @@ resource "aws_default_vpc" "default" {}
 # Security Group 
 
 resource "aws_security_group" "my_security_group" {
-  name        = "terra-security-group"
+  name        = "${terraform.workspace}-terra-security-group"
   vpc_id      = aws_default_vpc.default.id
   description = "Security group"
 }

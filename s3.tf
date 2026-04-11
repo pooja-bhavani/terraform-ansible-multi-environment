@@ -6,7 +6,7 @@ resource "random_id" "bucket_id" {
 resource "aws_s3_bucket" "terrabucket" {
   count = local.current.s3
 
-  bucket = "${terraform.workspace}-bucket-${count.index}-${random_id.bucket_id[count.index].hex}"
+  bucket = "terra-bucket-${terraform.workspace}-${count.index}"
 
   tags = {
     Name        = "${terraform.workspace}-bucket-${count.index}"

@@ -5,7 +5,7 @@ locals {
       s3  = 1
       ddb = 1
     }
-    staging = {
+    stag = {
       ec2 = 3
       s3  = 1
       ddb = 1
@@ -17,5 +17,11 @@ locals {
     }
   }
 
-  current = local.config[terraform.workspace]
+  current = lookup(local.config, terraform.workspace, local.config["dev"])
+
+  key_names = {
+    dev     = "terra-key-dev"
+    staging = "terra-key-staging"
+    prod    = "terra-key-prod"
+  }
 }
