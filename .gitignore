@@ -11,11 +11,10 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 .terraformrc
-terra-automate-key
 terraform.rc
 
 # SSH Keys (never commit private keys)
-terra-key
+terra-automate-key
 *.pem
 
 # OS
