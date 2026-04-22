@@ -1,6 +1,6 @@
 # Terraform for DevOps — Hands-On Repo
 
-<img width="1464" height="880" alt="image" src="https://github.com/user-attachments/assets/0689a80c-451d-4c94-bfa1-fdf0b7bc1caa" />
+<img width="1462" height="800" alt="image" src="https://github.com/user-attachments/assets/90bfec49-6cc5-4541-b58e-f7aabce5f844" />
 
 This repository is your one-stop solution for learning Terraform as a DevOps Engineer. It covers basics through advanced features with real AWS infrastructure.
 
