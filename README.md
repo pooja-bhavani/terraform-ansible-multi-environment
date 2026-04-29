@@ -1,4 +1,4 @@
-# Terraform for DevOps — Hands-On Repo
+# End-to-End Infrastructure Automation at Scale: Provisioning & Configuration using Terraform and Ansible
 
 <img width="1462" height="804" alt="image" src="https://github.com/user-attachments/assets/13bc65e6-3320-4c66-ba6e-33dcef19ceae" />
 
